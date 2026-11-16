@@ -131,16 +131,15 @@ with tab2:
     st.markdown(r'''
     La **segunda ley de Fick** describe la evolución de la concentración libre
     $C$ cuando el transporte se debe a difusión:
-
-    $$\frac{\partial C}{\partial t}=D\nabla^2 C.$$
-
+    ''')
+    st.latex(r'\frac{\partial C}{\partial t}=D\nabla^2 C')
+    st.markdown(r'''
     Para incluir una retirada de primer orden, introducimos el término $-kC$.
     Suponiendo **simetría esférica** (la concentración depende solo del radio $r$),
     el problema queda:
-
-    $$\boxed{\frac{\partial C}{\partial t}=D\frac{1}{r^2}
-    \frac{\partial}{\partial r}\!\left(r^2\frac{\partial C}{\partial r}\right)-kC}$$
-
+    ''')
+    st.latex(r'\boxed{\frac{\partial C}{\partial t}=\frac{D}{r^2}\frac{\partial}{\partial r}\left(r^2\frac{\partial C}{\partial r}\right)-kC}')
+    st.markdown(r'''
     La variable $C$ representa únicamente **sustancia libre**; el modelo no distingue
     moléculas ligadas, internalizadas y degradadas, que quedan agrupadas en un único
     proceso efectivo de retirada.
@@ -166,8 +165,9 @@ with tab2:
     with st.expander('Solución analítica en régimen estacionario (para contrastar el cálculo numérico)'):
         st.markdown(r'''
         Al imponer $\partial C/\partial t=0$ y mantener $C(R)=C_s$, se obtiene:
-        $$\frac{C_\infty(r)}{C_s}=\frac{R}{r}
-        \frac{\sinh(r/\ell)}{\sinh(R/\ell)}\quad(r>0),$$
+        ''')
+        st.latex(r'\frac{C_\infty(r)}{C_s}=\frac{R}{r}\,\frac{\sinh(r/\ell)}{\sinh(R/\ell)}\qquad (r>0)')
+        st.markdown(r'''
         con límite central $C_\infty(0)/C_s=\phi/\sinh\phi$.
         Esta solución corresponde al modelo esférico continuo, no a datos clínicos.
         ''')
@@ -176,8 +176,9 @@ with tab2:
         Se discretiza la esfera en **160 capas de volumen finito**, respetando el
         volumen de cada capa y sus superficies de intercambio. El flujo entre capas
         se calcula mediante la primera ley de Fick. Esto reproduce el balance:
-        $$\frac{d}{dt}\int_V C\,dV
-        =J_{\mathrm{entrada}}-k\int_V C\,dV.$$
+        ''')
+        st.latex(r'\frac{d}{dt}\int_V C\,dV=J_{\mathrm{entrada}}-k\int_V C\,dV')
+        st.markdown(r'''
         El sistema lineal resultante se resuelve con una descomposición espectral,
         exacta en tiempo para la discretización elegida. Esto evita la inestabilidad
         temporal de un esquema explícito, aunque persiste el error espacial de la malla.
