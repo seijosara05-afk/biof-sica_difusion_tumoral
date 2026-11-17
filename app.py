@@ -202,13 +202,6 @@ with tab1:
     El laboratorio permitirá poner a prueba esta hipótesis variando $D$, $k$
     y $R$ por separado, y observando perfiles radiales, mapas de concentración
     y la fracción de volumen que supera un umbral relativo.
-
-    Conviene distinguir **llegada de sustancia libre** y **efecto terapéutico**:
-    el modelo no calcula cuánta sustancia se acumula dentro de las células,
-    su toxicidad ni la muerte celular. Tampoco reproduce todas las barreras
-    presentes en un tumor real, como mencionamos anteriormente. Su finalidad es explicar, mediante un sistema
-    controlado, cómo la competición entre difusión y captación puede generar
-    distribuciones espaciales heterogéneas.
     """)
    
 # ===== 02 =====
