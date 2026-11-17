@@ -61,7 +61,24 @@ with st.sidebar:
     st.caption('Cambia los valores y observa cómo responde el mismo modelo biofísico.')
     D = st.slider('Difusión D (µm²/s)', 0.5, 30.0, step=0.5, key='D',
                   help='Movilidad efectiva de la sustancia en el tejido.')
-    k = st.slider('Captación k (s⁻¹)', min_value=0.0, max_value=0.010, step=0.0001, key='k', format='%.4f')
+    
+    k = st.slider(
+        'Captación k (s⁻¹)',
+        min_value=0.0,
+        max_value=0.010,
+        value=0.001,
+        step=0.0001,
+        key='captacion_k',
+        format='%.4f',
+        help=(
+            "Constante que representa la velocidad de retirada del fármaco libre "
+            "debido a procesos como la captación celular o la degradación. "
+            "Cuanto mayor es k, más rápidamente disminuye la concentración libre "
+            "y menor es su penetración característica en el tejido. "
+            "Si k = 0, únicamente actúa la difusión. "
+            "Unidad: s⁻¹."))
+
+
     R = st.slider('Radio R (µm)', 100, 600, step=25, key='R',
                   help='Radio del esferoide esférico idealizado.')
     horizonte = st.slider('Duración total (min)', 15, 480, step=15,
