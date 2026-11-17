@@ -73,8 +73,7 @@ with st.sidebar:
     st.markdown('**Escalas físicas**')
     st.write(f'Longitud característica: **{"∞" if k==0 else f"{ell:.1f} µm"}**')
     st.write(f'Parámetro adimensional: **φ = {phi:.2f}**')
-    st.caption('Valores exploratorios, no parámetros ajustados a un tumor ni a un fármaco reales.')
-
+    
 @st.cache_data(show_spinner=False, max_entries=28)
 def calcular(D, k, R, duracion_min, n=160):
     return simular(D, k, R, np.linspace(0, duracion_min*60, 101), n=n)
@@ -95,7 +94,7 @@ tab1,tab2,tab3,tab4,tab5,tab6 = st.tabs([
 
 # ===== 01 =====
 with tab1:
-    st.header('01 — El desafío')
+    st.header('01 — El problema')
     st.subheader('¿Llegar al tumor es lo mismo que llegar a todas sus células?')
     st.markdown('''
     Para que un fármaco actúe sobre una célula, primero tiene que conseguir llegar hasta ella.
