@@ -71,7 +71,7 @@ with st.sidebar:
     ell = np.inf if k==0 else np.sqrt(D/k)
     phi = 0 if k==0 else R/ell
     st.markdown('**Escalas físicas**')
-    st.write(f'Longitud característica: **{"∞" if k==0 else f"{ell:.1f} µm"}**')
+    st.write(f'Longitud característica: **{"∞ - no existe una escala finita de penetración asociada a la captación (k = 0)" if k==0 else f"{ell:.1f} µm"}**')
     st.write(f'Parámetro adimensional: **φ = {phi:.2f}**')
     
 @st.cache_data(show_spinner=False, max_entries=28)
