@@ -61,8 +61,7 @@ with st.sidebar:
     st.caption('Cambia los valores y observa cómo responde el mismo modelo biofísico.')
     D = st.slider('Difusión D (µm²/s)', 0.5, 30.0, step=0.5, key='D',
                   help='Movilidad efectiva de la sustancia en el tejido.')
-    k = st.slider('Captación k (s⁻¹)', 0.0, 0.060, step=0.001, key='k',
-                  help='Retirada de fármaco LIBRE por unidad de tiempo.')
+    k = st.slider('Captación k (s⁻¹)', min_value=0.0, max_value=0.010, step=0.0001, key='k', format='%.4f')
     R = st.slider('Radio R (µm)', 100, 600, step=25, key='R',
                   help='Radio del esferoide esférico idealizado.')
     horizonte = st.slider('Duración total (min)', 15, 480, step=15,
@@ -96,35 +95,106 @@ tab1,tab2,tab3,tab4,tab5,tab6 = st.tabs([
 
 # ===== 01 =====
 with tab1:
-    st.header('01 — El problema científico')
+    st.header('01 — El desafío')
     st.subheader('¿Llegar al tumor es lo mismo que llegar a todas sus células?')
     st.markdown('''
-    En un tumor sólido, que una sustancia esté disponible en su periferia **no garantiza**
-    que alcance las células más profundas. La distribución puede ser heterogénea debido a
-    la organización del tejido, las propiedades del medio, la perfusión y las interacciones
-    de las moléculas con las células.
+    Para que un fármaco actúe sobre una célula, primero tiene que conseguir llegar hasta ella.
+    En los tumores sólidos, la presencia de una sustancia en el entorno del tumor
+    no garantiza que alcance por igual todas sus regiones. Su distribución depende
+    de las distancias que debe recorrer, de la estructura del tejido y de las
+    interacciones que experimenta durante el trayecto.
 
-    Los **esferoides tumorales multicelulares** permiten investigar algunas de estas
-    dificultades en un sistema tridimensional simplificado. Aquí nos centramos en una
-    pregunta concreta: **¿cómo compiten la difusión hacia el interior y la retirada de
-    moléculas libres por parte del tejido?**
+    En un tumor real intervienen numerosos factores en el proceso como la vascularización,
+    la permeabilidad de los vasos sanguíneos, la estructura de la matriz extracelular,...
+    Nosotros **proponemos un modelo simplificado que considera únicamente dos mecanismos
+    fundamentales: la difusión molecular y la retirada de sustancia libre**. Esta 
+    aproximación permite analizar de forma aislada cómo la competencia entre ambos procesos
+    condiciona la distribución espacial del fármaco y su capacidad para alcanzar las
+    regiones más profundas del tejido, sin introducir toda la complejidad de un sistema
+    tumoral real.
 
-    *Idea del experimento:* suponemos que el exterior del esferoide se mantiene a una
-    concentración fija, mientras que en su interior se difunde una sustancia y parte de
+
+    Los **esferoides tumorales multicelulares** son conjuntos tridimensionales de
+    células utilizados como modelos experimentales simplificados de tejido tumoral.
+    En este trabajo representamos uno de ellos mediante una **esfera de radio $R$**:
+    la sustancia se suministra desde el medio exterior, atraviesa la superficie
+    y comienza a difundirse hacia el centro.
+    
+    Vamos a suponer que el exterior del esferoide se mantiene a una concentración fija, 
+    mientras que en su interior se difunde una sustancia y parte de
     ella deja de estar libre. La cuestión no es solo cuánto entra, sino hasta dónde llega.
     ''')
     c1,c2,c3=st.columns(3)
-    c1.info('**Difusión**\n\nTransporta sustancia desde la superficie hacia regiones internas.')
-    c2.info('**Captación / eliminación**\n\nReduce la cantidad de moléculas libres disponibles para continuar avanzando.')
-    c3.info('**Tamaño**\n\nAumenta la distancia que deben recorrer las moléculas hasta el centro.')
-    st.markdown('''
-    **Hipótesis de trabajo.** Una captación suficientemente intensa puede producir
-    un gradiente acusado y dejar el centro del esferoide con poca sustancia libre,
-    incluso aunque en la superficie exista un suministro constante.
-    ''')
-    st.caption('Referencias: Minchinton y Tannock (2006); Kim, Gillies y Rejniak (2013). Enlace y citas completas en la pestaña 06.')
-    st.warning('**Alcance:** investigamos un sistema idealizado. No inferimos eficacia farmacológica, daño celular ni respuesta clínica.')
+    c1.info('**Difusión**\n\nLa agitación molecular permite el transporte neto desde zonas de mayor a menor concentración. Un $D$ más alto favorece la redistribución espacial.')
+    c2.info('**Captación / eliminación**\n\nUna parte de las moléculas deja de estar libre para seguir difundiendo. El parámetro $k$ regula esa retirada.')
+    c3.info('**Tamaño**\n\nUn esferoide mayor obliga a recorrer distancias mayores. Por eso el radio $R$ también afecta a la penetración.')
+    st.markdown(r"""
+    ### Los parámetros del simulador
 
+    Los controles de la izquierda permiten cambiar **un mecanismo físico cada vez**
+    y comprobar cómo cambia la distribución. Sus valores son **exploratorios**:
+    los hemos elegido para visualizar distintos regímenes de nuestro modelo.
+    """)
+    st.table(pd.DataFrame([
+        {'Parámetro':'Difusión D',
+         'Unidad':'µm²/s', 'Intervalo':'0,5–30'},
+        {'Parámetro':'Captación k',
+         'Unidad':'s⁻¹', 'Intervalo':'0–0,060'},
+        {'Parámetro':'Radio R',
+         'Unidad':'µm', 'Intervalo':'100–600'},
+        {'Parámetro':'Duración',
+         'Unidad':'min', 'Intervalo':'15–480'},
+    ]))
+    st.markdown(r"""
+    **¿Por qué esos intervalos?** Son rangos de exploración que permiten comparar
+    procesos lentos y rápidos dentro del *mismo modelo*.""")
+
+    st.markdown(r"""
+    La difusión y la captación compiten en **escalas temporales distintas**.
+    Para compararlas, utilizamos una escala difusiva $t_D=R^2/D$, el tiempo
+    característico de retirada $t_k=1/k$ (cuando $k>0$) y la longitud
+    $\ell=\sqrt{D/k}$. Esta última nos indica cuánto puede penetrar
+    característicamente la concentración libre antes de disminuir de forma
+    apreciable por captación.
+    """)
+    t_d = R**2 / D
+    t_k = float('inf') if k == 0 else 1 / k
+    escala1,escala2,escala3=st.columns(3)
+    escala1.metric('Escala difusiva R²/D',f'{t_d/60:.1f} min',
+                   help='Escala dimensional; no equivale al tiempo exacto de estabilización.')
+    escala2.metric('Escala de captación 1/k',
+                   'Sin captación' if k == 0 else f'{t_k:.1f} s',
+                   help='Tiempo para caer a 1/e sin aporte ni difusión.')
+    escala3.metric('Longitud √(D/k)',
+                   'No finita' if k == 0 else f'{ell:.1f} µm',
+                   help='Escala de penetración asociada a difusión y retirada.')
+    if k == 0:
+        st.success('**Con estos valores:** no hay retirada de sustancia libre. Si mantenemos el suministro exterior el tiempo suficiente, la concentración tenderá a uniformizarse en todo el esferoide.')
+    elif phi < 1:
+        st.info(f'**Con estos valores, φ = {phi:.2f}:** la longitud característica de penetración ({ell:.1f} µm) es mayor que el radio ({R} µm). En el régimen estacionario se espera una concentración relativamente homogénea.')
+    elif phi < 3:
+        st.info(f'**Con estos valores, φ = {phi:.2f}:** difusión y retirada compiten a escalas comparables. Se espera un gradiente de concentración apreciable entre la superficie y el centro.')
+    else:
+        st.warning(f'**Con estos valores, φ = {phi:.2f}:** la longitud característica ({ell:.1f} µm) es mucho menor que el radio ({R} µm). Se prevé una concentración libre central muy reducida respecto a la superficie. Prueba a disminuir k o R para comparar.')
+
+
+    st.markdown(r"""
+    ### La pregunta que investigaremos
+
+    **¿Puede una captación celular más intensa producir una concentración
+    *libre* menor en el centro, aunque el suministro exterior sea el mismo?**
+    El laboratorio permitirá poner a prueba esta hipótesis variando $D$, $k$
+    y $R$ por separado, y observando perfiles radiales, mapas de concentración
+    y la fracción de volumen que supera un umbral relativo.
+
+    Conviene distinguir **llegada de sustancia libre** y **efecto terapéutico**:
+    el modelo no calcula cuánta sustancia se acumula dentro de las células,
+    su toxicidad ni la muerte celular. Tampoco reproduce todas las barreras
+    presentes en un tumor real, como mencionamos anteriormente. Su finalidad es explicar, mediante un sistema
+    controlado, cómo la competición entre difusión y captación puede generar
+    distribuciones espaciales heterogéneas.
+    """)
+   
 # ===== 02 =====
 with tab2:
     st.header('02 — El modelo biofísico')
